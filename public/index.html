@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de VBS</title>
+   <link rel="stylesheet" href="style.css">
+   <link rel="shortcut icon" href="img/icone.ico" type="image/x-icon">
+</head>
+<body>
+  
+    <h1>Gerador de VBS</h1>
+    <textarea id="userText" placeholder="Digite seu texto aqui..." rows="10"></textarea>
+    <br>
+    <label for="fileName">Escolha o nome do arquivo:</label>
+    <input type="text" id="fileName" placeholder="Nome do arquivo" value="escrita.vbs">
+    <br><br>
+    <button onclick="generateVBS()">Gerar VBS</button>
+
+    <script>
+        // Função para remover acentos
+        function removeAccents(str) {
+            return str
+                .replace(/[áàãâä]/g, 'a')
+                .replace(/[éèêë]/g, 'e')
+                .replace(/[íìîï]/g, 'i')
+                .replace(/[óòõôö]/g, 'o')
+                .replace(/[úùûü]/g, 'u')
+                .replace(/[ç]/g, 'c')
+                .replace(/[ÁÀÃÂÄ]/g, 'A')
+                .replace(/[ÉÈÊË]/g, 'E')
+                .replace(/[ÍÌÎÏ]/g, 'I')
+                .replace(/[ÓÒÕÔÖ]/g, 'O')
+                .replace(/[ÚÙÛÜ]/g, 'U')
+                .replace(/[Ç]/g, 'C');
+        }
+
+        // Função para gerar o arquivo VBS
+        function generateVBS() {
+            let userText = document.getElementById("userText").value;
+            let fileName = document.getElementById("fileName").value.trim() || 'escrita.vbs'; // Usar nome fornecido ou nome padrão
+
+            // Remove acentos do texto
+            let cleanedText = removeAccents(userText);
+
+            // Escapa as quebras de linha corretamente
+            let formattedText = cleanedText.split("\n").map(function(line) {
+                return '"' + line.trim() + '"';
+            }).join(' & vbCrLf & _\n');
+
+            // Formatar o código VBS com o texto limpo e as quebras de linha
+            let vbsCode = `Set WshShell = CreateObject("WScript.Shell")\nWScript.Sleep 2000 ' Espera 2 segundos antes de comecar a digitar\n\ntexto = ${formattedText}\nWshShell.SendKeys texto\nWshShell.SendKeys "{ENTER}" ' Aperta Enter no final`;
+
+            // Criar o arquivo VBS (no navegador, você cria o arquivo com o conteúdo gerado)
+            let blob = new Blob([vbsCode], { type: 'text/vbs' });
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName.endsWith('.vbs') ? fileName : `${fileName}.vbs`; // Garante que o arquivo tenha a extensão ".vbs"
+            link.click();
+        }
+    </script>
+</body>
+</html>
